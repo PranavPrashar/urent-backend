@@ -84,6 +84,18 @@ app.get("/listings", (req, res) => {
   });
 });
 
+app.get("/listings/singleListing/:listingID", (req, res) => {
+  // get all listings
+  knex("Listings")
+    .where({ "Listings.listingID": req.params.listingID })
+    .then((response) => {
+      res.status(200).send(response);
+    })
+    .catch((error) => {
+      console.log(error);
+    });
+});
+
 app.get("/listings/:city", (req, res) => {
   console.log("listing endpoint");
   //select * from Listings join Images where Listings.listingID = Images.listingImageID and Listings.listingCity='toronto';
@@ -221,6 +233,29 @@ app.get("/image", (req, res) => {
     .catch((error) => {
       console.log(error);
     });
+});
+
+app.get("/current", (req, res) => {
+  if (!req.headers.authorization) {
+    return res.status(401).send("Please login");
+  }
+
+  const authToken = req.headers.authorization.split(" ")[1];
+  jwt.verify(authToken, process.env.JWT_SECRET, (err, payload) => {
+    if (err) {
+      res.status(403).send("Invalid auth token");
+    } else {
+      knex("Users")
+        .where({ userName: payload.userName })
+        .then((users) => {
+          // console.log("Found user:", users[0]);
+          res.status(200).send(users[0]);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  });
 });
 
 app.listen(PORT, function () {
