@@ -87,13 +87,25 @@ app.get("/listings", (req, res) => {
 app.get("/listings/singleListing/:listingID", (req, res) => {
   // get all listings
   knex("Listings")
-    .where({ "Listings.listingID": req.params.listingID })
+    .join("Images", "Listings.listingID", "Images.listingImageID")
+    .andWhere("Images.listingImageID", req.params.listingID)
     .then((response) => {
+      // console.log("Response", response);
       res.status(200).send(response);
     })
     .catch((error) => {
-      console.log(error);
+      console.log("Error", error);
+      res.status(400).send("Error has occured:", error);
     });
+
+  // knex("Listings")
+  //   .where({ "Listings.listingID": req.params.listingID })
+  //   .then((response) => {
+  //     res.status(200).send(response);
+  //   })
+  //   .catch((error) => {
+  //     console.log(error);
+  //   });
 });
 
 app.get("/listings/:city", (req, res) => {
