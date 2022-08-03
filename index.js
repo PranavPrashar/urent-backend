@@ -85,27 +85,27 @@ app.get("/listings", (req, res) => {
 });
 
 app.get("/listings/singleListing/:listingID", (req, res) => {
-  // get all listings
   knex("Listings")
-    .join("Images", "Listings.listingID", "Images.listingImageID")
-    .andWhere("Images.listingImageID", req.params.listingID)
+    .where({ "Listings.listingID": req.params.listingID })
     .then((response) => {
-      // console.log("Response", response);
       res.status(200).send(response);
     })
     .catch((error) => {
-      console.log("Error", error);
-      res.status(400).send("Error has occured:", error);
+      console.log(error);
     });
+});
 
-  // knex("Listings")
-  //   .where({ "Listings.listingID": req.params.listingID })
-  //   .then((response) => {
-  //     res.status(200).send(response);
-  //   })
-  //   .catch((error) => {
-  //     console.log(error);
-  //   });
+app.get("/images/listingImages/:listingID", (req, res) => {
+  knex("Images")
+    .where("listingImageID", req.params.listingID)
+    .then((response) => {
+      console.log(response);
+      res.status(200).send(response);
+    })
+    .catch((error) => {
+      res.status(400).send("Error has occured", error);
+      console.log(error);
+    });
 });
 
 app.get("/listings/:city", (req, res) => {
@@ -113,6 +113,7 @@ app.get("/listings/:city", (req, res) => {
   //select * from Listings join Images where Listings.listingID = Images.listingImageID and Listings.listingCity='toronto';
 
   knex("Listings")
+    .limit(1)
     .join("Images", "Listings.listingID", "Images.listingImageID")
     .andWhere("Listings.listingCity", req.params.city)
     .then((response) => {
