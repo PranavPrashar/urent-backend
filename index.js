@@ -168,6 +168,27 @@ app.post(
 
     let response = build(imageURL_LIST);
     console.log(response);
+    knex("Images").insert();
+    return res.send(response);
+  }
+);
+
+app.post(
+  "/createlisting",
+  upload.array("profile-files", 12),
+  async (req, res) => {
+    console.log("/profile-upload-multiple");
+    let imageURL_LIST = [];
+    for (let i = 0; i < req.files.length; i++) {
+      let localFilePath = req.files[i].path;
+      let result = await uploadtoCloudinary(localFilePath); // This is a promise which needs to be resolved
+
+      imageURL_LIST.push(result.url + " ");
+    }
+
+    let response = build(imageURL_LIST);
+    console.log(response);
+    knex("Images").insert();
     return res.send(response);
   }
 );
