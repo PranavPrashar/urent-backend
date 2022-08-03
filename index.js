@@ -7,6 +7,13 @@ const knex = require("knex")(require("./knexfile"));
 const multer = require("multer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const rn = require("random-number");
+
+let options = {
+  min: 1000000,
+  max: 10000000,
+  integer: true,
+};
 
 const cloudinary = require("cloudinary").v2;
 
@@ -173,25 +180,60 @@ app.post(
   }
 );
 
-app.post(
-  "/createlisting",
-  upload.array("profile-files", 12),
-  async (req, res) => {
-    console.log("/profile-upload-multiple");
-    let imageURL_LIST = [];
-    for (let i = 0; i < req.files.length; i++) {
-      let localFilePath = req.files[i].path;
-      let result = await uploadtoCloudinary(localFilePath); // This is a promise which needs to be resolved
+// app.post(
+//   "/createlisting",
+//   upload.array("profile-files", 12),
+//   async (req, res) => {
+//     console.log("/profile-upload-multiple");
+//     let imageURL_LIST = [];
+//     for (let i = 0; i < req.files.length; i++) {
+//       let localFilePath = req.files[i].path;
+//       let result = await uploadtoCloudinary(localFilePath); // This is a promise which needs to be resolved
 
-      imageURL_LIST.push(result.url + " ");
-    }
+//       imageURL_LIST.push(result.url + " ");
+//     }
 
-    let response = build(imageURL_LIST);
-    console.log(response);
-    knex("Images").insert();
-    return res.send(response);
-  }
-);
+//     let response = build(imageURL_LIST);
+//     console.log(response);
+//     // knex("Images").insert();
+//     return res.send(response);
+//   }
+// );
+
+app.post("/postlisting", (req, res) => {
+  console.log("post listing called");
+  console.log(req.body);
+  let randomListingId = rn(options);
+  // console.log(random);
+  const {
+    listingPrice,
+    listingAddress,
+    listingCity,
+    listingSize,
+    listingBathrooms,
+    listingBedrooms,
+    listingDescription,
+    email,
+    phoneNumber,
+  } = req.body;
+  console.log(
+    listingPrice,
+    listingAddress,
+    listingCity,
+    listingSize,
+    listingBathrooms,
+    listingBedrooms,
+    listingDescription,
+    email,
+    phoneNumber
+  );
+  const postingObject = {
+    listingId: randomListingId,
+    // price :
+  };
+  // knex("Listings").insert({listingID: randomListingId, });
+  // knex into the listings table but for the listingId make a random id
+});
 
 app.post("/register", (req, res) => {
   console.log("/register called");
