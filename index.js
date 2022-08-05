@@ -123,7 +123,6 @@ app.get("/listings/:city", (req, res) => {
   //select * from Listings join Images where Listings.listingID = Images.listingImageID and Listings.listingCity='toronto';
 
   knex("Listings")
-    // .limit(1)
     .join("Images", "Listings.listingID", "Images.listingImageID")
     .andWhere("Listings.listingCity", req.params.city)
     .then((response) => {
@@ -258,7 +257,7 @@ app.post("/postlisting", upload.array("files", 12), async (req, res) => {
       console.log(values);
 
       console.log(responseBuild);
-      for (let i = 0; i < values.length; i++) {
+      for (let i = 0; i < values.length - 1; i++) {
         knex("Images")
           .insert({
             listingImageID: response,
