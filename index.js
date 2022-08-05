@@ -121,9 +121,17 @@ app.get("/images/listingImages/:listingID", (req, res) => {
 app.get("/listings/:city", (req, res) => {
   console.log("listing endpoint");
   //select * from Listings join Images where Listings.listingID = Images.listingImageID and Listings.listingCity='toronto';
-
+  //"Listings.listingID"
   knex("Listings")
-    .join("Images", "Listings.listingID", "Images.listingImageID")
+    .join("Images", function () {
+      this.on("Listings.listingID", "=", "Images.listingImageID").andOn(
+        "Images.id",
+        "=",
+        knex.raw(
+          "(select min(id) from Images where  Listings.listingID = Images.listingImageID)"
+        )
+      );
+    })
     .andWhere("Listings.listingCity", req.params.city)
     .then((response) => {
       // console.log(response);
@@ -398,6 +406,10 @@ app.get("/current", (req, res) => {
 app.get("/getuser/:userName", (req, res) => {
   console.log("called getuser");
   console.log(req.params.userName);
+});
+
+app.get("/mylistings/:userId", (req, res) => {
+  console.log("mylisting endpoint reached");
 });
 
 app.listen(PORT, function () {
