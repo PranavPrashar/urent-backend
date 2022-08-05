@@ -8,6 +8,9 @@ const multer = require("multer");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const rn = require("random-number");
+const { Knex } = require("knex");
+// const bodyParser = require("body-parser");
+// app.use(bodyParser.urlencoded({ extended: true }));
 
 let options = {
   min: 1000000,
@@ -49,7 +52,7 @@ async function uploadtoCloudinary(filePath) {
   const mainFolderName = "main";
   const filePathOnCloudinary = mainFolderName + "/" + filePath;
 
-  return cloudinary.uploader
+  return await cloudinary.uploader
     .upload(filePath, {
       public_id: filePathOnCloudinary,
     })
@@ -120,7 +123,7 @@ app.get("/listings/:city", (req, res) => {
   //select * from Listings join Images where Listings.listingID = Images.listingImageID and Listings.listingCity='toronto';
 
   knex("Listings")
-    .limit(1)
+    // .limit(1)
     .join("Images", "Listings.listingID", "Images.listingImageID")
     .andWhere("Listings.listingCity", req.params.city)
     .then((response) => {
@@ -168,14 +171,14 @@ app.post(
     let imageURL_LIST = [];
     for (let i = 0; i < req.files.length; i++) {
       let localFilePath = req.files[i].path;
-      let result = await uploadtoCloudinary(localFilePath); // This is a promise which needs to be resolved
+      let result = uploadtoCloudinary(localFilePath); // This is a promise which needs to be resolved
 
       imageURL_LIST.push(result.url + " ");
     }
 
     let response = build(imageURL_LIST);
     console.log(response);
-    knex("Images").insert();
+
     return res.send(response);
   }
 );
@@ -200,11 +203,11 @@ app.post(
 //   }
 // );
 
-app.post("/postlisting", (req, res) => {
+app.post("/postlisting", upload.array("files", 12), async (req, res) => {
   console.log("post listing called");
-  console.log(req.body);
+  console.log("Body", req.body);
   let randomListingId = rn(options);
-  // console.log(random);
+
   const {
     listingPrice,
     listingAddress,
@@ -215,22 +218,81 @@ app.post("/postlisting", (req, res) => {
     listingDescription,
     email,
     phoneNumber,
+    userId,
   } = req.body;
-  console.log(
-    listingPrice,
-    listingAddress,
-    listingCity,
-    listingSize,
-    listingBathrooms,
-    listingBedrooms,
-    listingDescription,
-    email,
-    phoneNumber
-  );
+  const { files } = req;
+
   const postingObject = {
     listingId: randomListingId,
-    // price :
+    price: listingPrice,
+    userId: userId,
+    size: listingSize,
+    listingAddress: listingAddress,
+    listingBedrooms: listingBedrooms,
+    listingBathrooms: listingBathrooms,
+    listingCity: listingCity,
+    listingDescription: listingDescription,
+    email: email,
+    phonenumber: phoneNumber,
+    // files: files,
   };
+  knex("Listings")
+    .insert(postingObject)
+    .then((response) => {
+      res.status(200).send(response);
+      console.log(postingObject.listingId);
+      return postingObject.listingId;
+    })
+    .then(async (response) => {
+      console.log(response);
+      let imageURL_LIST = [];
+      for (let i = 0; i < files.length; i++) {
+        let localFilePath = req.files[i].path;
+        let result = await uploadtoCloudinary(localFilePath); // This is a promise which needs to be resolved
+
+        imageURL_LIST.push(result.url + " ");
+      }
+
+      let responseBuild = build(imageURL_LIST);
+      let values = responseBuild.split(" ");
+      console.log(values);
+
+      console.log(responseBuild);
+      for (let i = 0; i < values.length; i++) {
+        knex("Images")
+          .insert({
+            listingImageID: response,
+            listingImagePath: values[i],
+          })
+          .then((responseImages) => {
+            console.log(responseImages);
+          })
+          .catch((error) => {
+            console.log(error);
+          });
+      }
+    })
+    .catch((error) => {
+      res.status(401).send(error);
+      console.log(error);
+    });
+
+  // let imageURL_LIST = [];
+  // for (let i = 0; i < req.files.length; i++) {
+  //   let localFilePath = req.files[i].path;
+  //   let result = await uploadtoCloudinary(localFilePath); // This is a promise which needs to be resolved
+
+  //   imageURL_LIST.push(result.url + " ");
+  // }
+
+  // let responseUrl = build(imageURL_LIST);
+  // console.log(responseUrl);
+  // knex("Images").insert();
+  // return res.send(response);
+
+  console.log(postingObject);
+  // res.status(200).send(postingObject);
+
   // knex("Listings").insert({listingID: randomListingId, });
   // knex into the listings table but for the listingId make a random id
 });
@@ -332,6 +394,11 @@ app.get("/current", (req, res) => {
         });
     }
   });
+});
+
+app.get("/getuser/:userName", (req, res) => {
+  console.log("called getuser");
+  console.log(req.params.userName);
 });
 
 app.listen(PORT, function () {
