@@ -404,12 +404,31 @@ app.get("/current", (req, res) => {
 });
 
 app.get("/getuser/:userName", (req, res) => {
-  console.log("called getuser");
+  // console.log("called getuser");
   console.log(req.params.userName);
 });
 
 app.get("/mylistings/:userId", (req, res) => {
   console.log("mylisting endpoint reached");
+  // console.log(req.params.userId);
+  knex("Listings")
+    .join("Images", function () {
+      this.on("Listings.listingID", "=", "Images.listingImageID").andOn(
+        "Images.id",
+        "=",
+        knex.raw(
+          "(select min(id) from Images where  Listings.listingID = Images.listingImageID)"
+        )
+      );
+    })
+    .andWhere("Listings.userId", req.params.userId)
+    .then((response) => {
+      // console.log(response);
+      res.status(200).send(response);
+    })
+    .catch((error) => {
+      console.log("Error", error);
+    });
 });
 
 app.listen(PORT, function () {
