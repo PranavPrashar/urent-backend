@@ -465,6 +465,26 @@ app.post("/updateListing/:listingID", (req, res) => {
       res.sendStatus(400).send(error);
     });
 });
+
+app.delete("/deletelisting/:listingID", (req, res) => {
+  console.log("delete endpoint called");
+  console.log(req.params.listingID);
+  knex("Images")
+    .where({ listingImageID: req.params.listingID })
+    .del()
+    .then((result) => {
+      knex("Listings")
+        .where({ "Listings.listingID": req.params.listingID })
+        .del()
+        .then((response) => {
+          console.log("Succsess", response);
+        });
+      res.send(result);
+    })
+    .catch((error) => {
+      console.log("Error", error);
+    });
+});
 app.listen(PORT, function () {
   console.log(` 🚨 Server ${PORT} Started`);
 });
