@@ -430,7 +430,41 @@ app.get("/mylistings/:userId", (req, res) => {
       console.log("Error", error);
     });
 });
+app.post("/updateListing/:listingID", (req, res) => {
+  console.log("Update endpoint called");
+  console.log(req.body);
+  console.log(req.params.listingID);
 
+  const {
+    // listingData,
+    listingPrice,
+    listingPhoneNumber,
+    listingCity,
+    listingSize,
+    listingBathrooms,
+    listingBedrooms,
+    listingDescription,
+  } = req.body;
+  knex("Listings")
+    .where({ "Listings.listingID": req.params.listingID })
+    .update({
+      price: listingPrice,
+      phonenumber: listingPhoneNumber,
+      listingCity: listingCity,
+      size: listingSize,
+      listingBathrooms: listingBathrooms,
+      listingBedrooms: listingBedrooms,
+      listingDescription: listingDescription,
+    })
+    .then((response) => {
+      console.log(response);
+      res.sendStatus(200).send(response);
+    })
+    .catch((error) => {
+      console.log(error);
+      res.sendStatus(400).send(error);
+    });
+});
 app.listen(PORT, function () {
   console.log(` 🚨 Server ${PORT} Started`);
 });
