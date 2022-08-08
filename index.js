@@ -501,6 +501,37 @@ app.post("/favouriteCheck/:listingId", (req, res) => {
       console.log(error);
     });
 });
+
+app.post("/addFavourite", (req, res) => {
+  const { userID, listingID } = req.body;
+  console.log(userID, listingID);
+  knex("Favourites")
+    .insert({ userID: userID, listingID: listingID })
+    .then(() => {
+      res.status(201).send("Registered successfully");
+    })
+    .catch((error) => {
+      res
+        .status(400)
+        .json({ message: "Something went wrong", error: error.sqlMessage });
+    });
+});
+
+app.post("/deleteFavourite", (req, res) => {
+  console.log("deleteFavourite");
+  const { userID, listingID } = req.body;
+
+  knex("Favourites")
+    .where({ userID: userID, listingID: listingID })
+    .del()
+    .then((result) => {
+      res.status(201).json({ message: "Successfully Deleted" });
+    })
+    .catch((error) => {
+      console.log("Error", error);
+    });
+  console.log(req.body);
+});
 app.listen(PORT, function () {
   console.log(` 🚨 Server ${PORT} Started`);
 });
