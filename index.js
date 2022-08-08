@@ -485,6 +485,22 @@ app.delete("/deletelisting/:listingID", (req, res) => {
       console.log("Error", error);
     });
 });
+
+app.post("/favouriteCheck/:listingId", (req, res) => {
+  // console.log(req.body);
+  const { userId, name, userName, password } = req.body;
+  // console.log(userId, name, userName, password);
+  knex("Favourites")
+    .where({ userID: userId })
+    .andWhere({ listingID: req.params.listingId })
+    .then((response) => {
+      res.status(200).send(response);
+    })
+    .catch((error) => {
+      res.status(400).send(false);
+      console.log(error);
+    });
+});
 app.listen(PORT, function () {
   console.log(` 🚨 Server ${PORT} Started`);
 });
