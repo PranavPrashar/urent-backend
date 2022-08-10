@@ -13,7 +13,7 @@ https://github.com/PranavPrashar/urent-frontend
 
 
 
-## Deployment Frontend
+## Deployment Backend
 
 To deploy this project run
 
