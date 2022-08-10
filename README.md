@@ -13,17 +13,15 @@ https://github.com/PranavPrashar/urent-frontend
 
 
 
-## Deployment Frontend
+## Deployment Backend
 
 To deploy this project run
+
 
 ```bash
   npm install
 ```
 
-```bash
-  cd into capstone-backend
-```
 ```bash
   npm i nodemon
 ```
