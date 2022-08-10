@@ -17,9 +17,7 @@ https://github.com/PranavPrashar/urent-frontend
 
 To deploy this project run
 
-```bash
-  cd into capstone-backend
-```
+
 ```bash
   npm install
 ```
