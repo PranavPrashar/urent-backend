@@ -283,25 +283,6 @@ app.post("/postlisting", upload.array("files", 12), async (req, res) => {
       res.status(401).send(error);
       console.log(error);
     });
-
-  // let imageURL_LIST = [];
-  // for (let i = 0; i < req.files.length; i++) {
-  //   let localFilePath = req.files[i].path;
-  //   let result = await uploadtoCloudinary(localFilePath); // This is a promise which needs to be resolved
-
-  //   imageURL_LIST.push(result.url + " ");
-  // }
-
-  // let responseUrl = build(imageURL_LIST);
-  // console.log(responseUrl);
-  // knex("Images").insert();
-  // return res.send(response);
-
-  console.log(postingObject);
-  // res.status(200).send(postingObject);
-
-  // knex("Listings").insert({listingID: randomListingId, });
-  // knex into the listings table but for the listingId make a random id
 });
 
 app.post("/register", (req, res) => {
@@ -317,6 +298,9 @@ app.post("/register", (req, res) => {
       name: name,
       userName: userName,
       password: hashedPassword,
+    })
+    .then((response) => {
+      res.status(200).send(response);
     })
     .catch((error) => {
       res
