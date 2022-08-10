@@ -22,10 +22,14 @@ To deploy this project run
 ```
 
 ```bash
-  cd into capstone-frontend
+  cd into capstone-backend
 ```
 ```bash
-  npm start
+  npm i nodemon
+```
+
+```bash
+  nodemon index.js
 ```
 
 
